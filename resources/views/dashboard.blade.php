@@ -86,7 +86,7 @@
 
         <!-- Dashboard Section -->
         <div id="dashboard" class="content-section">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            {{-- <div class="d-flex justify-content-between align-items-center mb-4"> --}}
                 <h4 class="mb-0">ড্যাশবোর্ড ওভারভিউ</h4>
                 <div class="d-flex gap-2">
                     <select class="form-select form-select-sm" style="width: auto;">
@@ -99,7 +99,7 @@
                         <i class="fas fa-download"></i> এক্সপোর্ট
                     </button>
                 </div>
-            </div>
+            {{-- </div> --}}
             
             <div class="row">
                 <div class="col-lg-3 col-md-6 mb-3">
@@ -634,125 +634,507 @@
     }
 </style>
         </div>
-
+        {{-- Product management --}}
         <div id="products" class="content-section" style="display:none;">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h4 class="mb-0"><i class="fas fa-box"></i> প্রোডাক্ট ম্যানেজমেন্ট</h4>
-                <button class="btn btn-primary" onclick="showAddProductModal()">
-                    <i class="fas fa-plus"></i> নতুন প্রোডাক্ট
-                </button>
+          
             </div>
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>প্রোডাক্ট নাম</th>
-                                    <th>ক্যাটাগরি</th>
-                                    <th>মূল্য</th>
-                                    <th>স্টক</th>
-                                    <th>স্ট্যাটাস</th>
-                                    <th>অ্যাকশন</th>
-                                </tr>
-                            </thead>
+                 <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>প্রোডাক্ট নাম</th>
+                            <th>ক্যাটাগরি</th>
+                            <th>মূল্য</th>
+                            <th>একক</th>
+                            <th>স্টক</th>
+                            <th>স্ট্যাটাস</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($products as $product)
+                            <tr>
+                                <td>{{ $product->name }}</td>
+                                <td>{{ $product->category }}</td>
+                                <td>৳{{ number_format($product->price) }}</td>
+                                <td>{{$product->unit }}</td>
+                                <td>
+                                    <span class="badge bg-{{ $product->stock > 50 ? 'success' : ($product->stock > 0 ? 'warning' : 'danger') }}">
+                                        {{ $product->stock }} 
+                                    </span>
+                                </td>
+                                <td>
+                                    @if($product->stock > 50)
+                                        <span class="badge bg-success">স্টকে আছে</span>
+                                    @elseif($product->stock > 0)
+                                        <span class="badge bg-warning">কম স্টক</span>
+                                    @else
+                                        <span class="badge bg-danger">স্টক শেষ</span>
+                                    @endif
+                                </td>
+                                
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    কোনো প্রোডাক্ট পাওয়া যায়নি
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+
+                {{-- Pagination --}}
+                    @if($products->hasPages())
+                        <div class="d-flex justify-content-center mt-3">
+                            {{ $products->links() }}
+                        </div>
+                    @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Report Section --}}
+     <div id="reports" class="content-section" style="display:none;">
+    <h4 class="mb-4 text-2xl font-bold text-primary">
+        <i class="fas fa-chart-bar"></i> রিপোর্ট ও বিশ্লেষণ
+    </h4>
+
+    <!-- তারিখ ফিল্টার (শুধু দেখানোর জন্য) -->
+    <div class="card mb-4 shadow">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label fw-bold">শুরুর তারিখ</label>
+                    <input type="date" id="startDate" class="form-control" value="2025-01-01">
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label fw-bold">শেষের তারিখ</label>
+                    <input type="date" id="endDate" class="form-control" value="2025-11-30">
+                </div>
+                <div class="col-md-2">
+                    <button onclick="loadReports()" class="btn btn-primary w-100">
+                        <i class="fas fa-sync"></i> লোড করুন
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- রিপোর্ট দেখানোর জায়গা -->
+    <div id="reportContent" class="row g-4"></div>
+
+    <!-- ডাউনলোড বাটন -->
+    <div class="card mt-4 shadow" id="exportSection" style="display:none;">
+        <div class="card-header bg-dark text-white">রিপোর্ট ডাউনলোড করুন</div>
+        <div class="card-body">
+            <div class="row g-3 text-center">
+                <div class="col-6 col-md-3">
+                    <button onclick="alert('এক্সেল ফাইল ডাউনলোড হচ্ছে...')" class="btn btn-success btn-lg w-100">
+                        <i class="fas fa-file-excel"></i><br>এক্সেল
+                    </button>
+                </div>
+                <div class="col-6 col-md-3">
+                    <button onclick="alert('পিডিএফ তৈরি হচ্ছে...')" class="btn btn-danger btn-lg w-100">
+                        <i class="fas fa-file-pdf"></i><br>পিডিএফ
+                    </button>
+                </div>
+                <div class="col-6 col-md-3">
+                    <button onclick="alert('সিএসভি ফাইল ডাউনলোড হচ্ছে...')" class="btn btn-info btn-lg w-100">
+                        <i class="fas fa-file-csv"></i><br>সিএসভি
+                    </button>
+                </div>
+                <div class="col-6 col-md-3">
+                    <button onclick="window.print()" class="btn btn-secondary btn-lg w-100">
+                        <i class="fas fa-print"></i><br>প্রিন্ট
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- চার্ট লাইব্রেরি -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// ডামি ডাটা (তুমি যখন ডাটাবেস বানাবে তখন এটা বদলে দিবে)
+const dummyData = {
+    sales: {
+        labels: ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট'],
+        data: [120000, 190000, 300000, 250000, 400000, 380000, 450000, 520000]
+    },
+    payment: {
+        labels: ['নগদ', 'বিকাশ', 'নগদ', 'রকেট', 'কার্ড'],
+        data: [45, 30, 15, 8, 2]
+    },
+    topProducts: {
+        labels: ['চাল ৫০কেজি', 'ডাল ১কেজি', 'তেল ৫লিটার', 'চিনি ১কেজি', 'লবণ ১কেজি'],
+        data: [850, 620, 480, 390, 320]
+    },
+    topCustomers: [
+        {name: "রহিম মিয়া", total: 285000},
+        {name: "করিম সাহেব", total: 242000},
+        {name: "জাহিদ হোসেন", total: 198000},
+        {name: "সোহেল রানা", total: 175000},
+        {name: "আলমগীর হোসেন", total: 162000}
+    ]
+};
+
+function loadReports() {
+    // লোডিং দেখাও
+    document.getElementById('reportContent').innerHTML = `
+        <div class="col-12 text-center py-5">
+            <h4 class="text-primary">রিপোর্ট লোড হচ্ছে...</h4>
+        </div>
+    `;
+
+    // ১ সেকেন্ড পর ডামি ডাটা দেখাও (যেন রিয়েল মনে হয়)
+    setTimeout(() => {
+        const d = dummyData;
+
+        document.getElementById('reportContent').innerHTML = `
+            <!-- মাসিক বিক্রয় -->
+            <div class="col-lg-6">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-primary text-white">মাসিক বিক্রয় রিপোর্ট</div>
+                    <div class="card-body">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- পেমেন্ট মেথড -->
+            <div class="col-lg-6">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-success text-white">পেমেন্ট মেথড বিতরণ</div>
+                    <div class="card-body">
+                        <canvas id="paymentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- টপ প্রোডাক্ট -->
+            <div class="col-lg-7">
+                <div class="card shadow">
+                    <div class="card-header bg-info text-white">টপ ৫ বিক্রিত প্রোডাক্ট</div>
+                    <div class="card-body">
+                        <canvas id="topProductsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- টপ কাস্টমার -->
+            <div class="col-lg-5">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-warning text-dark">টপ ৫ কাস্টমার</div>
+                    <div class="card-body">
+                        <table class="table table-sm table-hover">
                             <tbody>
-                                <tr>
-                                    <td>চাল (কেজি)</td>
-                                    <td>খাদ্যপণ্য</td>
-                                    <td>৳ ৬৫</td>
-                                    <td><span class="badge bg-success">২৫০ কেজি</span></td>
-                                    <td><span class="badge bg-success">স্টকে আছে</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>ডাল (কেজি)</td>
-                                    <td>খাদ্যপণ্য</td>
-                                    <td>৳ ১২০</td>
-                                    <td><span class="badge bg-warning">১৫ কেজি</span></td>
-                                    <td><span class="badge bg-warning">কম স্টক</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                                    </td>
-                                </tr>
+                                ${d.topCustomers.map((c,i) => `
+                                    <tr>
+                                        <td><strong>${i+1}</strong></td>
+                                        <td>${c.name}</td>
+                                        <td class="text-end fw-bold">৳${c.total.toLocaleString()}</td>
+                                    </tr>
+                                `).join('')}
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-        </div>
+        `;
 
-        
-        <div id="reports" class="content-section" style="display:none;">
-            <h4 class="mb-4"><i class="fas fa-chart-bar"></i> রিপোর্ট ও বিশ্লেষণ</h4>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <div class="card">
-                        <div class="card-header">মাসিক বিক্রয় রিপোর্ট</div>
-                        <div class="card-body">
-                            <div class="chart-container">
-                                <canvas id="salesChart"></canvas>
+        // চার্টগুলো তৈরি করো
+        new Chart(document.getElementById('salesChart'), {
+            type: 'line',
+            data: { labels: d.sales.labels, datasets: [{ label: 'বিক্রয় (টাকা)', data: d.sales.data, borderColor: '#4361ee', backgroundColor: 'rgba(67,97,238,0.1)', fill: true, tension: 0.4 }] },
+            options: { responsive: true }
+        });
+
+        new Chart(document.getElementById('paymentChart'), {
+            type: 'doughnut',
+            data: { labels: d.payment.labels, datasets: [{ data: d.payment.data, backgroundColor: ['#2ecc71','#3498db','#f1c40f','#e74c3c','#9b59b6'] }] },
+            options: { responsive: true }
+        });
+
+        new Chart(document.getElementById('topProductsChart'), {
+            type: 'bar',
+            data: { labels: d.topProducts.labels, datasets: [{ label: 'বিক্রি (পিস)', data: d.topProducts.data, backgroundColor: '#17a2b8' }] },
+            options: { indexAxis: 'y', responsive: true }
+        });
+
+        // এক্সপোর্ট বাটন দেখাও
+        document.getElementById('exportSection').style.display = 'block';
+
+    }, 800);
+}
+
+// পেজ লোড হলেই রিপোর্ট দেখাও
+window.addEventListener('load', loadReports);
+</script>
+
+<style>
+@media print {
+    body > *:not(#reports) { display: none !important; }
+    #reports { display: block !important; position: absolute; top: 0; left: 0; width: 100%; }
+}
+</style>
+
+  <div id="expenses" class="content-section" style="display:none;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">
+            <i class="fas fa-money-bill-wave text-success me-2"></i> খরচ ম্যানেজমেন্ট
+        </h4>
+        {{-- <button class="btn btn-primary shadow-sm px-4" @click="openModal()">
+            <i class="fas fa-plus"></i> নতুন খরচ যোগ করুন
+        </button> --}}
+    </div>
+
+    <!-- Success Alert -->
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    <!-- Total Expense Card -->
+    {{-- <div class="card border-0 shadow-sm mb-4"> --}}
+        <div class="card-body bg-gradient-danger text-white rounded">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-2 opacity-90">মোট খরচ</h5>
+                    <h2 class="mb-0 fw-bold">৳ {{ number_format($totalExpenses ?? 0) }}</h2>
+                    <small class="opacity-80">{{ $expenses->total() ?? 0 }} টি রেকর্ড</small>
+                </div>
+                <i class="fas fa-wallet fa-4x opacity-50"></i>
+            </div>
+        </div>
+    {{-- </div> --}}
+
+    <!-- Search & Filter -->
+    <div class="card border-0 shadow-sm mb-4" x-data="{ search: '', category: '' }">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-lg-8">
+                    <input type="text" class="form-control form-control-lg rounded-pill" 
+                           placeholder="শিরোনাম দিয়ে খুঁজুন..." x-model.debounce.500ms="search">
+                </div>
+                <div class="col-lg-4">
+                    <select class="form-select form-select-lg rounded-pill" x-model="category">
+                        <option value="">সব ক্যাটাগরি</option>
+                        <option value="food">খাবার</option>
+                        <option value="transport">যাতায়াত</option>
+                        <option value="shopping">কেনাকাটা</option>
+                        <option value="bills">বিল</option>
+                        <option value="entertainment">বিনোদন</option>
+                        <option value="health">স্বাস্থ্য</option>
+                        <option value="other">অন্যান্য</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expense Table -->
+    <div class="card border-0 shadow-lg">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">তারিখ</th>
+                            <th>শিরোনাম</th>
+                            <th>ক্যাটাগরি</th>
+                            <th class="text-end pe-4">পরিমাণ</th>
+                            <th class="text-center">অ্যাকশন</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($expenses as $expense)
+                            <tr x-show="
+                                '{{ addslashes($expense->title) }}'.toLowerCase().includes(search.toLowerCase()) &&
+                                (!category || '{{ $expense->category }}' === category)
+                            ">
+                                <td class="ps-4 text-muted fw-medium">
+                                    {{ \Carbon\Carbon::parse($expense->date)->format('d M, Y') }}
+                                </td>
+                                <td class="fw-bold text-dark">{{ $expense->title }}</td>
+                                <td>
+                                    <span class="badge rounded-pill px-3 py-2 text-white
+                                        @if($expense->category == 'food') bg-danger
+                                        @elseif($expense->category == 'transport') bg-warning text-dark
+                                        @elseif($expense->category == 'shopping') bg-info
+                                        @elseif($expense->category == 'bills') bg-primary
+                                        @elseif($expense->category == 'entertainment') bg-pink
+                                        @elseif($expense->category == 'health') bg-success
+                                        @else bg-secondary @endif">
+                                        {{ __("{$expense->category}") == $expense->category ? ucfirst($expense->category) : __("{$expense->category}") }}
+                                        {{ $expense->category == 'other' ? 'অন্যান্য' : '' }}
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4 fw-bold text-danger fs-5">
+                                    ৳ {{ number_format($expense->amount) }}
+                                </td>
+                                <td class="text-center">
+                                    {{-- <button @click="edit({!! $expense->toJson() !!})" 
+                                            class="btn btn-sm btn-outline-warning rounded-circle" title="এডিট">
+                                        <i class="fas fa-edit"></i>
+                                    </button> --}}
+                                    <form action="{{ route('expenses.destroy', $expense) }}" method="POST" class="d-inline">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" onclick="return confirm('নিশ্চিত করে মুছবেন?')"
+                                                class="btn btn-sm btn-outline-danger rounded-circle ms-2" title="ডিলিট">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <i class="fas fa-receipt fa-4x text-muted mb-3"></i>
+                                    <p class="text-muted">কোনো খরচ যোগ করা হয়নি</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="card-footer bg-white border-top-0">
+                {{ $expenses->links() }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal - Auto Open হবে না (গ্যারান্টি) -->
+    <div x-data="expenseModal()" 
+         x-show="open" 
+         x-transition.opacity 
+         class="modal fade" 
+         style="display: none;"
+         :style="open ? 'display: block; background: rgba(0,0,0,0.6);' : 'display: none;'"
+         @keydown.escape.window="open = false"
+         role="dialog">
+
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="modal-header bg-gradient-primary text-white">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-money-bill-wave me-2"></i>
+                        <span x-text="editing ? 'খরচ সম্পাদনা করুন' : 'নতুন খরচ যোগ করুন'"></span>
+                    </h5>
+                    <button @click="open = false" class="btn-close btn-close-white"></button>
+                </div>
+
+                <form :action="editing ? '/expenses/' + form.id : '/expenses'" method="POST">
+                    @csrf
+                    @if($editing ?? false) @method('PUT') @endif
+
+                    <div class="modal-body py-4">
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label fw-bold">শিরোনাম <span class="text-danger">*</span></label>
+                                <input type="text" name="title" x-model="form.title" required 
+                                       class="form-control form-control-lg rounded-pill" placeholder="যেমন: অফিসের লাঞ্চ">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">তারিখ <span class="text-danger">*</span></label>
+                                <input type="date" name="date" x-model="form.date" required 
+                                       class="form-control form-control-lg rounded-pill">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">পরিমাণ <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-warning text-white fw-bold">৳</span>
+                                    <input type="number" step="0.01" name="amount" x-model="form.amount" required 
+                                           class="form-control form-control-lg" placeholder="500">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">ক্যাটাগরি <span class="text-danger">*</span></label>
+                                <select name="category" x-model="form.category" required class="form-select form-select-lg rounded-pill">
+                                    <option value="food">খাবার</option>
+                                    <option value="transport">যাতায়াত</option>
+                                    <option value="shopping">কেনাকাটা</option>
+                                    <option value="bills">বিল</option>
+                                    <option value="entertainment">বিনোদন</option>
+                                    <option value="health">স্বাস্থ্য</option>
+                                    <option value="other">অন্যান্য</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-bold">বিবরণ (ঐচ্ছিক)</label>
+                                <textarea name="description" x-model="form.description" rows="3" 
+                                          class="form-control rounded-3" placeholder="বিস্তারিত লিখুন..."></textarea>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <div class="card">
-                        <div class="card-header">পেমেন্ট মেথড বিতরণ</div>
-                        <div class="card-body">
-                            <div class="chart-container">
-                                <canvas id="paymentChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card mt-3">
-                <div class="card-header">রিপোর্ট ডাউনলোড</div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3 mb-2">
-                            <button class="btn btn-outline-primary w-100" onclick="exportData()">
-                                <i class="fas fa-file-excel"></i> এক্সেল রিপোর্ট
-                            </button>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <button class="btn btn-outline-danger w-100" onclick="exportData()">
-                                <i class="fas fa-file-pdf"></i> পিডিএফ রিপোর্ট
-                            </button>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <button class="btn btn-outline-success w-100" onclick="exportData()">
-                                <i class="fas fa-file-csv"></i> সিএসভি রিপোর্ট
-                            </button>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <button class="btn btn-outline-info w-100" onclick="window.print()">
-                                <i class="fas fa-print"></i> প্রিন্ট রিপোর্ট
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div id="expenses" class="content-section" style="display:none;">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="mb-0"><i class="fas fa-money-bill-wave"></i> খরচ ম্যানেজমেন্ট</h4>
-                <button class="btn btn-primary" onclick="showAddExpenseModal()">
-                    <i class="fas fa-plus"></i> নতুন খরচ যোগ করুন
-                </button>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <p class="text-muted">খরচ ট্র্যাকিং সিস্টেম এখানে থাকবে...</p>
-                </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" @click="open = false" class="btn btn-secondary btn-lg px-5 rounded-pill">
+                            বাতিল
+                        </button>
+                        <button type="submit" class="btn btn-success btn-lg px-5 rounded-pill shadow">
+                            <span x-text="editing ? 'আপডেট করুন' : 'যোগ করুন'"></span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
+    </div>
+
+    <!-- Alpine.js Script (মডাল অটো ওপেন হবে না) -->
+    <script>
+        function expenseModal() {
+            return {
+                open: false,
+                editing: false,
+                form: {
+                    id: '',
+                    title: '',
+                    amount: '',
+                    date: new Date().toISOString().split('T')[0],
+                    category: 'other',
+                    description: ''
+                },
+                openModal() {
+                    this.editing = false;
+                    this.form = {
+                        id: '', title: '', amount: '', date: new Date().toISOString().split('T')[0],
+                        category: 'other', description: ''
+                    };
+                    this.open = true;
+                },
+                edit(expense) {
+                    this.editing = true;
+                    this.form = {
+                        id: expense.id,
+                        title: expense.title,
+                        amount: expense.amount,
+                        date: expense.date,
+                        category: expense.category || 'other',
+                        description: expense.description || ''
+                    };
+                    this.open = true;
+                }
+            }
+        }
+    </script>
+</div>
+
+<!-- Alpine.js CDN (শুধু একবার লোড করুন পুরো প্রজেক্টে) -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
         <div id="inventory" class="content-section" style="display:none;">
             <h4 class="mb-4"><i class="fas fa-warehouse"></i> স্টক ম্যানেজমেন্ট</h4>

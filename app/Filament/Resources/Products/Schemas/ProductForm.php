@@ -18,11 +18,16 @@ class ProductForm
                 TextInput::make('price')
                     ->required()
                     ->numeric()
-                    ->prefix('$'),
+                    ->prefix('৳'),
+                     Select::make('unit')
+                    ->options(['kg' => 'KG', 'gm' => 'GM', 'ml' => 'ML'])
+                    ->default('kg')
+                    ->required(),
                 TextInput::make('stock')
                     ->required()
                     ->numeric()
                     ->default(0),
+                
                 Select::make('status')
                     ->options(['in_stock' => 'In stock', 'low_stock' => 'Low stock', 'out_of_stock' => 'Out of stock'])
                     ->default('in_stock')

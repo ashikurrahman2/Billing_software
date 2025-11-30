@@ -21,6 +21,8 @@ class ProductsTable
                 TextColumn::make('price')
                     ->money()
                     ->sortable(),
+                TextColumn::make('unit')
+                    ->badge(),
                 TextColumn::make('stock')
                     ->numeric()
                     ->sortable(),

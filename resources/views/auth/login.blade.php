@@ -57,7 +57,7 @@
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <i class="fas fa-lock text-gray-400"></i>
                             </div>
-                            <input type="password" name="password" required placeholder="আপনার ইমেইল লিখুন"
+                            <input type="password" name="password" required placeholder="আপনার পাসওয়ার্ড দিন"
                                    class="pl-12 w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500">
                         </div>
                     </div>
