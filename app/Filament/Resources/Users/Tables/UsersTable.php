@@ -19,6 +19,15 @@ class UsersTable
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),
+                     TextColumn::make('phone')
+                    ->label('Phone Number')
+                    ->searchable(),
+                       TextColumn::make('address')
+                    ->label('Address')
+                    ->searchable(),
+                         TextColumn::make('business_name')
+                    ->label('Business Name')
+                    ->searchable(),
                     TextColumn::make('roles.name')
                     ->badge()
                     ->searchable(),

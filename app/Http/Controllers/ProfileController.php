@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use App\Models\Bill;
+use App\Models\Customer;
 
 class ProfileController extends Controller
 {
@@ -16,8 +18,24 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        // Statistics calculations - BEFORE return statement
+        $totalBills     = Bill::count();
+        $totalSales     = Bill::sum('grand_total');
+        $todaySales     = Bill::whereDate('date', today())->sum('grand_total');
+        $thisMonthSales = Bill::whereMonth('date', now()->month)
+                              ->whereYear('date', now()->year)
+                              ->sum('grand_total');
+        $totalCustomers = Customer::count();
+        $totalDue       = Bill::whereIn('status', ['due', 'partial'])->sum('grand_total');
+
         return view('profile.edit', [
             'user' => $request->user(),
+            'totalBills' => $totalBills,
+            'totalSales' => $totalSales,
+            'todaySales' => $todaySales,
+            'thisMonthSales' => $thisMonthSales,
+            'totalCustomers' => $totalCustomers,
+            'totalDue' => $totalDue,
         ]);
     }
 

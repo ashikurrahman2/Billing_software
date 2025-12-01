@@ -15,6 +15,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/expenses', [DashboardController::class, 'index'])->name('expenses.index');
     Route::post('/expenses', [DashboardController::class, 'store'])->name('expenses.store');
+    Route::get('/password-change', [DashboardController::class, 'PassChange'])->name('password.change');
     Route::put('/expenses/{expense}', [DashboardController::class, 'update'])->name('expenses.update');
     Route::delete('/expenses/{expense}', [DashboardController::class, 'destroy'])->name('expenses.destroy');
 });

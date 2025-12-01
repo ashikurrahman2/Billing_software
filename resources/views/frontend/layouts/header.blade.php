@@ -33,7 +33,8 @@
             </a>
         </li>
         <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="#"><i class="fas fa-user"></i> প্রোফাইল</a></li>
+        <li><a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="fas fa-user"></i> প্রোফাইল</a></li>
+        <li><a class="dropdown-item" href="{{ route('password.change') }}"><i class="fas fa-user"></i> পাসওয়ার্ড পরিবর্তন</a></li>
         <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> সেটিংস</a></li>
         <li><hr class="dropdown-divider"></li>
         <li>

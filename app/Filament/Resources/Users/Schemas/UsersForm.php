@@ -19,6 +19,16 @@ class UsersForm
                     ->label('Email address')
                     ->email()
                     ->required(),
+                     TextInput::make('phone')
+                    ->label('Phone Number')
+                    ->tel()
+                    ->required(),
+                      TextInput::make('business_name')
+                    ->label('Business Name')
+                    ->required(),
+                         TextInput::make('address')
+                    ->label('Address')
+                    ->required(),
                     MultiSelect::make('roles')
                     ->relationship('roles', 'name')
                     ->preload(),

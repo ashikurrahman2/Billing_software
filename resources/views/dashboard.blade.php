@@ -32,19 +32,14 @@
             <a class="nav-link" href="#" onclick="showSection('expenses')">
                 <i class="fas fa-money-bill-wave"></i> খরচ ম্যানেজমেন্ট
             </a>
-            <a class="nav-link" href="#" onclick="showSection('inventory')">
-                <i class="fas fa-warehouse"></i> স্টক ম্যানেজমেন্ট
-            </a>
-            <a class="nav-link" href="#" onclick="showSection('settings')">
-                <i class="fas fa-cog"></i> সেটিংস
-            </a>
-            <hr style="border-color: rgba(255,255,255,0.2);">
-            <div class="px-3 py-2">
+         
+            {{-- <hr style="border-color: rgba(255,255,255,0.2);"> --}}
+            {{-- <div class="px-3 py-2">
                 <small class="text-white-50">দ্রুত অ্যাক্সেস</small>
-            </div>
-            <a class="nav-link" href="#" onclick="showBackupModal()">
+            </div> --}}
+            {{-- <a class="nav-link" href="#" onclick="showBackupModal()">
                 <i class="fas fa-database"></i> ব্যাকআপ
-            </a>
+            </a> --}}
             {{-- <a class="nav-link" href="#" onclick="showNotifications()">
                 <i class="fas fa-bell"></i> নোটিফিকেশন
                 <span class="notification-badge"></span>
@@ -1094,7 +1089,7 @@ window.addEventListener('load', loadReports);
         </div>
     </div>
 
-    <!-- Alpine.js Script (মডাল অটো ওপেন হবে না) -->
+    <!-- Alpine.js Script -->
     <script>
         function expenseModal() {
             return {
@@ -1136,17 +1131,10 @@ window.addEventListener('load', loadReports);
 <!-- Alpine.js CDN (শুধু একবার লোড করুন পুরো প্রজেক্টে) -->
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-        <div id="inventory" class="content-section" style="display:none;">
-            <h4 class="mb-4"><i class="fas fa-warehouse"></i> স্টক ম্যানেজমেন্ট</h4>
-            <div class="card">
-                <div class="card-body">
-                    <p class="text-muted">ইনভেন্টরি সিস্টেম এখানে থাকবে...</p>
-                </div>
-            </div>
-        </div>
+     
         
         
-        <div id="settings" class="content-section" style="display:none;">
+        {{-- <div id="settings" class="content-section" style="display:none;">
             <h4 class="mb-4"><i class="fas fa-cog"></i> সেটিংস</h4>
             <div class="row">
                 <div class="col-md-6 mb-3">
@@ -1193,5 +1181,5 @@ window.addEventListener('load', loadReports);
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
      @endsection

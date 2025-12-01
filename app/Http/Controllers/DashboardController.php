@@ -185,5 +185,10 @@ public function getReportData(Request $request)
         $pdf = PDF::loadView('frontend.bills.print', compact('bill'));
         return $pdf->download('bill-' . $bill->invoice_no . '.pdf');
     }
+
+    public function PassChange()
+    {
+        return view('profile.partials.update-password-form');
+    }
 }
 
